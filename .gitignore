@@ -1,0 +1,17 @@
+# Swift Package Manager
+/.build
+/Packages
+Package.resolved
+
+# Xcode
+/*.xcodeproj
+
+# Idea
+/.idea
+
+# OS X
+.DS_Store
+
+# Tools 
+tools/external/*
+!tools/external/.gitkeep

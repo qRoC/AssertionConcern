@@ -1,0 +1,54 @@
+language: minimal
+
+env:
+
+matrix:
+  allow_failures:
+    - env: INSTALL_SWIFT=master
+  include:
+    - name: "Ubuntu 14.04 | Swift master"
+      os: linux
+      dist: trusty
+      sudo: required
+      env: INSTALL_SWIFT=master
+
+    - name: "Ubuntu 14.04 | Swift 5"
+      os: linux
+      dist: trusty
+      sudo: required
+      env: INSTALL_SWIFT=5
+
+    - name: "Ubuntu 16.04 | Swift master"
+      os: linux
+      dist: xenial
+      sudo: required
+      env: INSTALL_SWIFT=master
+
+    - name: "Ubuntu 16.04 | Swift 5"
+      os: linux
+      dist: xenial
+      sudo: required
+      env: INSTALL_SWIFT=5
+
+    - name: "macOS | Swift master"
+      os: osx
+      osx_image: xcode10.1
+      sudo: required
+      env: INSTALL_SWIFT=master
+
+    - name: "macOS | Swift 5"
+      os: osx
+      osx_image: xcode10.1
+      sudo: required
+      env: INSTALL_SWIFT=5
+      before_script: swift test --generate-linuxmain && git diff --exit-code
+
+before_install:
+  - . tools/deployment/install-swift-$INSTALL_SWIFT.sh
+
+script:
+  - swift build
+  - swift test
+
+notifications:
+  email: false

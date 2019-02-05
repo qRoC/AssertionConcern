@@ -1,0 +1,11 @@
+/.github                 export-ignore
+/.gitattributes    text  export-ignore
+/.gitignore        text  export-ignore
+.gitkeep           text  export-ignore
+/.editorconfig     text
+LICENSE            text
+*.md               text
+*.swift            text
+*.gyb              text
+*.yml              text
+*.sh               text
