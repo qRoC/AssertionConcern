@@ -15,3 +15,6 @@ Package.resolved
 # Tools 
 tools/external/*
 !tools/external/.gitkeep
+
+# swiftlint (configuration is in process)
+.swiftlint.yml
