@@ -34,9 +34,9 @@ is_root()
 packages_install() {
     if is_root; then
         apt-get -qq update
-        apt-get install -y curl
+        apt-get install -y "$@"
     else
         sudo apt-get -qq update
-        sudo apt-get install -y curl
+        sudo apt-get install -y "$@"
     fi
 }
