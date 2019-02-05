@@ -6,7 +6,7 @@
 // file that was distributed with this source code.
 
 /// Satisfaction errors from the `AssertionConcern` methods.
-public enum AssertionConcernError: Error, CustomStringConvertible, CustomDebugStringConvertible {
+public enum AssertionConcernError: Error, Equatable, CustomStringConvertible, CustomDebugStringConvertible {
     /// Contains notifications from not satisfied asserts.
     case notSatisfied(notifications: [AssertionNotification])
 
