@@ -12,7 +12,7 @@ import XCTest
 @testable import AssertionConcern
 #endif
 
-final class ClassAssertionsTests: BaseAssertionsTests {
+internal final class ClassAssertionsTests: BaseAssertionsTests {
     ///
     func testIsSameInstanceAsValidCase() {
         self.assertMustBeValid(assert(\Int.self, isSameInstanceAs: \Int.self))

@@ -12,7 +12,7 @@ import XCTest
 @testable import AssertionConcern
 #endif
 
-final class EquatableAssertionsTests: BaseAssertionsTests {
+internal final class EquatableAssertionsTests: BaseAssertionsTests {
     ///
     func testIsEqualToValidCase() {
         self.assertMustBeValid(assert(1, isEqualTo: 1))

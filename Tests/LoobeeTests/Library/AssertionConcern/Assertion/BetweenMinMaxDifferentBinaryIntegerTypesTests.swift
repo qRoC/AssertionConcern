@@ -12,7 +12,7 @@ import XCTest
 @testable import AssertionConcern
 #endif
 
-final class BetweenMinMaxDifferentBinaryIntegerTypesTests: BaseAssertionsTests {
+internal final class BetweenMinMaxDifferentBinaryIntegerTypesTests: BaseAssertionsTests {
     ///
     func testOutOfRangeMinimum() {
         let value: UInt8 = 1

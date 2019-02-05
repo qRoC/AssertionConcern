@@ -12,7 +12,7 @@ import Loobee
 import AssertionConcern
 #endif
 
-final class AssertionNotificationTests: XCTestCase {
+internal final class AssertionNotificationTests: XCTestCase {
     ///
     func testCreateMethod() {
         let message: String = "testMessasge"

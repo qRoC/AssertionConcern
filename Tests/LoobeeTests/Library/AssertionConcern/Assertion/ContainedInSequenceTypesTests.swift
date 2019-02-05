@@ -12,7 +12,7 @@ import XCTest
 @testable import AssertionConcern
 #endif
 
-final class ContainedInSequenceTypesTests: BaseAssertionsTests {
+internal final class ContainedInSequenceTypesTests: BaseAssertionsTests {
     ///
     func testContainedInSampleArray() {
         self.assertMustBeValid(assert(4, containedIn: [1, 2, 3, 4, 5]))

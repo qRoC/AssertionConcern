@@ -12,7 +12,7 @@ import XCTest
 @testable import AssertionConcern
 #endif
 
-final class LessThanSameBinaryIntegerTypesTests: BaseAssertionsTests {
+internal final class LessThanSameBinaryIntegerTypesTests: BaseAssertionsTests {
     ///
     func testLessCondition() {
         let a = 10

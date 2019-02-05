@@ -12,7 +12,7 @@ import XCTest
 @testable import AssertionConcern
 #endif
 
-final class BetweenRangeComparableTypesTests: BaseAssertionsTests {
+internal final class BetweenRangeComparableTypesTests: BaseAssertionsTests {
     ///
     func testOutOfRangeMinimum() {
         let value = 1

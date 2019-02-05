@@ -13,7 +13,7 @@ import AssertionConcern
 #endif
 
 /// Contains base methods for check assertions result.
-class BaseAssertionsTests: XCTestCase {
+internal class BaseAssertionsTests: XCTestCase {
     /// Checks result of assertion. The `result` must be nil.
     @inline(__always)
     internal func assertMustBeValid(

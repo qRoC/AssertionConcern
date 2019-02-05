@@ -12,7 +12,7 @@ import XCTest
 @testable import AssertionConcern
 #endif
 
-final class HasSizeCollectionTypesTests: BaseAssertionsTests {
+internal final class HasSizeCollectionTypesTests: BaseAssertionsTests {
     ///
     func testHasSizeEmptyArray() {
         self.assertMustBeValid(assert([], hasSize: 0))

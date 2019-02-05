@@ -12,7 +12,7 @@ import XCTest
 @testable import AssertionConcern
 #endif
 
-final class BoolAssertionsTests: BaseAssertionsTests {
+internal final class BoolAssertionsTests: BaseAssertionsTests {
     ///
     func testIsTrueValidCase() {
         self.assertMustBeValid(assert(isTrue: true))

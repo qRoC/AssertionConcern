@@ -12,7 +12,7 @@ import XCTest
 @testable import AssertionConcern
 #endif
 
-final class LessOrEqualThanComparableTypesTests: BaseAssertionsTests {
+internal final class LessOrEqualThanComparableTypesTests: BaseAssertionsTests {
     ///
     func testLessCondition() {
         let a: Character = "a"
