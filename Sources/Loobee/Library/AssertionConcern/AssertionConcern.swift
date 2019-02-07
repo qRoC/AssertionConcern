@@ -45,7 +45,47 @@ public enum AssertionConcern {
     public static func satisfy(_ assertResults: AssertionNotification?...) throws {
         let notifications = assertResults.compactMap { $0 }
 
-        if !notifications.isEmpty {
+        if _slowPath(!notifications.isEmpty) {
+            throw AssertionConcernError.notSatisfied(notifications: notifications)
+        }
+    }
+
+    /// Accepts assertion groups results and throws error if at least one group is not satisfied.
+    ///
+    /// For more details, see `AssertionGroup`.
+    ///
+    ///     do {
+    ///         try AssertionConcern.groupsSatisfy(
+    ///             .lazy("test") { value, yield in
+    ///                 yield(assert("t", containedIn: value))  // ok
+    ///                 yield(assert("a", containedIn: value))  // fail
+    ///                 yield(assert("e", containedIn: value))  // never be executed
+    ///                 yield(assert("b", containedIn: value))  // never be executed
+    ///             },
+    ///             .lazy(10) { value, yield in
+    ///                 yield(assert(value, greaterOrEqualThan: 15))  // fail
+    ///             }
+    ///         )
+    ///     } catch AssertionConcernError.notSatisfied(let notifications) {
+    ///         /// Print notifications from:
+    ///         ///   lazy("test"): assert("a", containedIn: value)
+    ///         ///   lazy(10):     assert(value, greaterOrEqualThan: 15)
+    ///         print(notifications)
+    ///     } catch {
+    ///         print(error) // never be executed
+    ///     }
+    public static func groupsSatisfy(_ groups: AssertionGroup...) throws {
+        let countOfNotifications = groups.reduce(0) { currentCount, group in
+            currentCount + group.notifications.count
+        }
+
+        if _slowPath(countOfNotifications > 0) {
+            var notifications: [AssertionNotification] = []
+            notifications.reserveCapacity(countOfNotifications)
+            groups.forEach {
+                notifications.append(contentsOf: $0.notifications)
+            }
+
             throw AssertionConcernError.notSatisfied(notifications: notifications)
         }
     }

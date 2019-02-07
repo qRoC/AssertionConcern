@@ -12,19 +12,19 @@ import XCTest
 @testable import AssertionConcern
 #endif
 
-internal final class AssertionConcernTests: XCTestCase {
+internal final class AssertionConcernSatisfyTests: XCTestCase {
     ///
-    func testSatisfyWithoutNotifications() {
+    func testWithoutNotifications() {
             XCTAssertNoThrow(try AssertionConcern.satisfy())
     }
 
     ///
-    func testSatisfyWithNilArguments() {
+    func testWithNilArguments() {
         XCTAssertNoThrow(try AssertionConcern.satisfy(nil, nil, nil, nil, nil))
     }
 
     ///
-    func testSatisfyErrorType() {
+    func testErrorType() {
         XCTAssertThrowsError(
             try AssertionConcern.satisfy(
                 .create(message: "Test1", file: "file1", line: 1)
@@ -35,12 +35,13 @@ internal final class AssertionConcernTests: XCTestCase {
     }
 
     ///
-    func testSatisfyErrorContent() {
+    func testErrorContent() {
         let result = AssertionConcernError.notSatisfied(notifications: [
             .create(message: "Test1", file: "file1", line: 1),
             .create(message: "Test2", file: "file2", line: 2),
             .create(message: "Test3", file: "file3", line: 3),
         ])
+
         XCTAssertThrowsError(
             try AssertionConcern.satisfy(
                 nil,
