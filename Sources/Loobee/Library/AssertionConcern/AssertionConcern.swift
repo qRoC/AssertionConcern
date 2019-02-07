@@ -33,15 +33,16 @@ public enum AssertionConcernError: Error, Equatable, CustomStringConvertible, Cu
     }
 }
 
-///
+/// Collection of methods for working with assertions.
 public enum AssertionConcern {
     /// Accepts assertion results and throws error if at least one assert is not satisfied.
     ///
-    ///   AssertionConcern.satisfy(
+    ///   try AssertionConcern.satisfy(
     ///       assert(10, greaterOrEqualThan: 4),
     ///       assert(5, between: 0..<10, orNotification: "Message")
     ///   )
     ///
+    /// - Throws: `AssertionConcernError`
     public static func satisfy(_ assertResults: AssertionNotification?...) throws {
         let notifications = assertResults.compactMap { $0 }
 
@@ -74,6 +75,7 @@ public enum AssertionConcern {
     ///     } catch {
     ///         print(error) // never be executed
     ///     }
+    /// - Throws: `AssertionConcernError`
     public static func groupsSatisfy(_ groups: AssertionGroup...) throws {
         let countOfNotifications = groups.reduce(0) { currentCount, group in
             currentCount + group.notifications.count
