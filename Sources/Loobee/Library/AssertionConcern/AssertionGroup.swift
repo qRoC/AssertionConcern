@@ -14,6 +14,9 @@ public struct AssertionGroup {
     /// Delegate for deferred execution of an assertion.
     public typealias LazyYieldFunction = (@autoclosure () -> AssertionNotification?) -> Void
 
+    /// Delegate for collect results of assertions.
+    public typealias YieldFunction = (AssertionNotification?) -> Void
+
     /// Group notifications container.
     public let notifications: [AssertionNotification]
 
@@ -46,6 +49,34 @@ public struct AssertionGroup {
             }
 
             let assertResult = lazyAssert()
+            if _fastPath(assertResult == nil) {
+                return
+            }
+
+            notifications.append(assertResult!)
+        }
+
+        return .init(notifications)
+    }
+
+    /// Collects all notifications.
+    ///
+    ///     let group = AssertionGroup.all("test") { value, yield in
+    ///         yield(assert("t", containedIn: value))  // ok
+    ///         yield(assert("a", containedIn: value))  // fail
+    ///         yield(assert("e", containedIn: value))  // ok
+    ///         yield(assert("b", containedIn: value))  // fail
+    ///     }
+    ///     print(group.notifications.count) // 2
+    ///
+    @inlinable
+    public static func all<T>(
+        _ value: T,
+        block: (_ value: T, _ yield: YieldFunction) -> Void
+        ) -> AssertionGroup {
+        var notifications: [AssertionNotification] = []
+
+        block(value) { assertResult in
             if _fastPath(assertResult == nil) {
                 return
             }

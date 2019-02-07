@@ -63,14 +63,18 @@ public enum AssertionConcern {
     ///                 yield(assert("e", containedIn: value))  // never be executed
     ///                 yield(assert("b", containedIn: value))  // never be executed
     ///             },
-    ///             .lazy(10) { value, yield in
-    ///                 yield(assert(value, greaterOrEqualThan: 15))  // fail
-    ///             }
+    ///             .all("test") { value, yield in
+    ///                 yield(assert("t", containedIn: value))  // ok
+    ///                 yield(assert("a", containedIn: value))  // fail
+    ///                 yield(assert("e", containedIn: value))  // ok
+    ///                 yield(assert("b", containedIn: value))  // fail
+    ///             },
     ///         )
     ///     } catch AssertionConcernError.notSatisfied(let notifications) {
-    ///         /// Print notifications from:
-    ///         ///   lazy("test"): assert("a", containedIn: value)
-    ///         ///   lazy(10):     assert(value, greaterOrEqualThan: 15)
+    ///         /// Print notifications result of:
+    ///         ///   assert("a", containedIn: value) // from .lazy("test")
+    ///         ///   assert("a", containedIn: value) // from .all("test")
+    ///         ///   assert("b", containedIn: value) // from .all("test")
     ///         print(notifications)
     ///     } catch {
     ///         print(error) // never be executed
