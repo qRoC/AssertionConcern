@@ -26,7 +26,8 @@ public struct AssertionGroup {
         self.notifications = notifications
     }
 
-    /// Aborting directly on the first notification instead collect all notifications.
+    /// Calls of asserts is aborting directly on the first notification.
+    /// The returned group contains only this notification.
     ///
     ///     let group = AssertionGroup.lazy("test") { value, yield in
     ///         yield(assert("t", containedIn: value))  // ok
@@ -59,7 +60,7 @@ public struct AssertionGroup {
         return .init(notifications)
     }
 
-    /// Collects all notifications.
+    /// All asserts will be called. The returned group contains all notifications.
     ///
     ///     let group = AssertionGroup.all("test") { value, yield in
     ///         yield(assert("t", containedIn: value))  // ok
@@ -85,5 +86,42 @@ public struct AssertionGroup {
         }
 
         return .init(notifications)
+    }
+
+    /// If at least one assert was sucessful, the returned group does not
+    /// contain any notifications. Otherwise, the returned group contains
+    /// all the notifications.
+    ///
+    ///     let group = AssertionGroup.anyOf("test") { value, yield in
+    ///         yield(assert("a", containedIn: value))  // fail
+    ///         yield(assert("t", containedIn: value))  // ok
+    ///         yield(assert("e", containedIn: value))  // never be executed
+    ///         yield(assert("b", containedIn: value))  // never be executed
+    ///     }
+    ///     print(group.notifications.count) // 0
+    ///
+    @inlinable
+    public static func anyOf<T>(
+        _ value: T,
+        block: (_ value: T, _ yield: LazyYieldFunction) -> Void
+        ) -> AssertionGroup {
+        var notifications: [AssertionNotification] = []
+        var hasSuccessful = false
+
+        block(value) { lazyAssert in
+            if _fastPath(hasSuccessful) {
+                return
+            }
+
+            let assertResult = lazyAssert()
+            if _fastPath(assertResult == nil) {
+                hasSuccessful = true
+                return
+            }
+
+            notifications.append(assertResult!)
+        }
+
+        return .init(_fastPath(hasSuccessful) ? [] : notifications)
     }
 }
