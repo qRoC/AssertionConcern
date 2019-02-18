@@ -9,7 +9,7 @@ import XCTest
 #if canImport(Loobee)
 @testable import Loobee
 #else
-@testable import AssertionConcern
+@testable import LoobeeAssertionConcern
 #endif
 
 internal final class GreaterThanDifferentBinaryIntegerTypesTests: BaseAssertionsTests {

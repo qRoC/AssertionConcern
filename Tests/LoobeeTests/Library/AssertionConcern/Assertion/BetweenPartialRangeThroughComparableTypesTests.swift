@@ -12,55 +12,39 @@ import XCTest
 @testable import LoobeeAssertionConcern
 #endif
 
-internal final class BetweenClosedRangeComparableTypesTests: BaseAssertionsTests {
-    ///
-    func testOutOfRangeMinimum() {
-        let value = 1
-        let range = 2...5
-
-        self.assertMustBeNotValid(
-            assert(value, between: range)
-        )
-    }
-
+internal final class BetweenPartialRangeThroughComparableTypesTests: BaseAssertionsTests {
     ///
     func testOutOfRangeMaximum() {
         let value = 6
-        let range = 2...5
+        let range = ...5
 
         self.assertMustBeNotValid(
             assert(value, between: range)
         )
-    }
-
-    ///
-    func testMinimumEqual() {
-        let value = 2
-        let range = 2...5
-
-        self.assertMustBeValid(assert(value, between: range))
     }
 
     ///
     func testMaximumEqual() {
         let value = 5
-        let range = 2...5
+        let range = ...5
 
-        self.assertMustBeValid(assert(value, between: range))
+        self.assertMustBeValid(
+            assert(value, between: range)
+        )
     }
 
     ///
     func testInRange() {
-        let value = 4
-        let range = 2...5
+        let value = Int.min
+        let range = ...5
 
         self.assertMustBeValid(assert(value, between: range))
     }
 
     ///
     func testDefaultMessage() {
-        let value = 1
-        let range = 2...5
+        let value = 6
+        let range = ...5
         let message = kBetweenDefaultMessage.description
 
         self.assertMustBeNotValid(
@@ -71,8 +55,8 @@ internal final class BetweenClosedRangeComparableTypesTests: BaseAssertionsTests
 
     ///
     func testCustomMessage() {
-        let value = 1
-        let range = 2...5
+        let value = 6
+        let range = ...5
         let message = "Test"
 
         self.assertMustBeNotValid(

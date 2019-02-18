@@ -16,5 +16,8 @@ Package.resolved
 tools/external/*
 !tools/external/.gitkeep
 
-# swiftlint (configuration is in process)
+# swiftlint (configuration is in progress)
 .swiftlint.yml
+
+# docs is in progress
+docs/

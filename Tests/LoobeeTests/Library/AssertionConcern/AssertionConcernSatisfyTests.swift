@@ -9,15 +9,10 @@ import XCTest
 #if canImport(Loobee)
 @testable import Loobee
 #else
-@testable import AssertionConcern
+@testable import LoobeeAssertionConcern
 #endif
 
 internal final class AssertionConcernSatisfyTests: XCTestCase {
-    ///
-    func testWithoutNotifications() {
-            XCTAssertNoThrow(try AssertionConcern.satisfy())
-    }
-
     ///
     func testWithNilArguments() {
         XCTAssertNoThrow(try AssertionConcern.satisfy(nil, nil, nil, nil, nil))

@@ -9,27 +9,27 @@ import XCTest
 #if canImport(Loobee)
 import Loobee
 #else
-import AssertionConcern
+import LoobeeAssertionConcern
 #endif
 
-internal final class AssertionGroupLazyTests: XCTestCase {
+internal final class AssertionGroupAllTests: XCTestCase {
     ///
     func testAssignValue() {
-        _ = AssertionGroup.lazy(4) { value, _ in
+        _ = AssertionGroup.all(4) { value, _ in
             XCTAssertEqual(value, 4)
         }
     }
 
     ///
     func testEmptyBlock() {
-        let assertionGroup = AssertionGroup.lazy("test") { _, _ in }
+        let assertionGroup = AssertionGroup.all("test") { _, _ in }
 
         XCTAssertTrue(assertionGroup.notifications.isEmpty)
     }
 
     ///
     func testWithValidAssertions() {
-        let assertionGroup = AssertionGroup.lazy("test") { value, yield in
+        let assertionGroup = AssertionGroup.all("test") { value, yield in
             yield(assert("t", containedIn: value))
             yield(assert("e", containedIn: value))
             yield(assert("a", notContainedIn: value))
@@ -40,36 +40,17 @@ internal final class AssertionGroupLazyTests: XCTestCase {
     }
 
     ///
-    func testExecuteBeforeFirstFail() {
-        var callCount = 0
-
-        let checker: (_ container: String, _ value: Character) -> AssertionNotification? = { container, value in
-            callCount += 1
-            return assert(value, containedIn: container)
-        }
-
-        _ = AssertionGroup.lazy("test") { value, yield in
-            yield(checker(value, "t"))
-            yield(checker(value, "a"))
-            yield(checker(value, "e"))
-            yield(checker(value, "b"))
-            yield(checker(value, "s"))
-            yield(checker(value, "c"))
-        }
-
-        XCTAssertEqual(callCount, 2)
-    }
-
-    ///
     func testExecuteResultIfFailed() {
-        let assertionGroup = AssertionGroup.lazy("test") { value, yield in
+        let assertionGroup = AssertionGroup.all("test") { value, yield in
             yield(assert("t", containedIn: value))
             yield(assert("e", containedIn: value))
             yield(assert("a", containedIn: value, orNotification: "FAIL"))
             yield(assert("s", containedIn: value))
+            yield(assert("b", containedIn: value, orNotification: "FAIL2"))
         }
 
-        XCTAssertEqual(assertionGroup.notifications.count, 1)
+        XCTAssertEqual(assertionGroup.notifications.count, 2)
         XCTAssertEqual(assertionGroup.notifications.first?.message, "FAIL")
+        XCTAssertEqual(assertionGroup.notifications.last?.message, "FAIL2")
     }
 }

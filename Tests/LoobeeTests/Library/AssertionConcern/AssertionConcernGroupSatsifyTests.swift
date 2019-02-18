@@ -9,18 +9,13 @@ import XCTest
 #if canImport(Loobee)
 @testable import Loobee
 #else
-@testable import AssertionConcern
+@testable import LoobeeAssertionConcern
 #endif
 
 internal final class AssertionConcernGroupSatsifyTests: XCTestCase {
     ///
-    func testWithoutNotifications() {
-        XCTAssertNoThrow(try AssertionConcern.groupsSatisfy())
-    }
-
-    ///
     func testWithEmptyGroups() {
-        XCTAssertNoThrow(try AssertionConcern.groupsSatisfy(
+        XCTAssertNoThrow(try AssertionConcern.satisfy(
             .lazy(1) { _, _ in },
             .lazy(2) { _, _ in }
         ))
@@ -29,7 +24,7 @@ internal final class AssertionConcernGroupSatsifyTests: XCTestCase {
     ///
     func testErrorType() {
         XCTAssertThrowsError(
-            try AssertionConcern.groupsSatisfy(
+            try AssertionConcern.satisfy(
                 AssertionGroup([.create(message: "Test1", file: "file1", line: 1)])
             )
         ) { error in
@@ -46,7 +41,7 @@ internal final class AssertionConcernGroupSatsifyTests: XCTestCase {
         ])
 
         XCTAssertThrowsError(
-            try AssertionConcern.groupsSatisfy(
+            try AssertionConcern.satisfy(
                 .lazy("Test1") { value, yield in
                     yield(.create(message: value, file: "file1", line: 1))
                 },

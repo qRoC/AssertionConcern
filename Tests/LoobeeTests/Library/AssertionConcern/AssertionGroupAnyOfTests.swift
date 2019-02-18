@@ -9,7 +9,7 @@ import XCTest
 #if canImport(Loobee)
 import Loobee
 #else
-import AssertionConcern
+import LoobeeAssertionConcern
 #endif
 
 internal final class AssertionGroupAnyOfTests: XCTestCase {

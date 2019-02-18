@@ -56,7 +56,7 @@ public enum AssertionConcern {
     /// For more details, see `AssertionGroup`.
     ///
     ///     do {
-    ///         try AssertionConcern.groupsSatisfy(
+    ///         try AssertionConcern.satisfy(
     ///             .lazy("test") { value, yield in
     ///                 yield(assert("t", containedIn: value))  // ok
     ///                 yield(assert("a", containedIn: value))  // fail
@@ -80,7 +80,7 @@ public enum AssertionConcern {
     ///         print(error) // never be executed
     ///     }
     /// - Throws: `AssertionConcernError`
-    public static func groupsSatisfy(_ groups: AssertionGroup...) throws {
+    public static func satisfy(_ groups: AssertionGroup...) throws {
         let countOfNotifications = groups.reduce(0) { currentCount, group in
             currentCount + group.notifications.count
         }

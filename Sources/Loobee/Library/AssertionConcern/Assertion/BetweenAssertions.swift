@@ -179,3 +179,43 @@ public func assert<T: Comparable>(
 
     return nil
 }
+
+/// Determines if the `value` is between some minimum and maximum.
+@inlinable
+public func assert<T: Comparable>(
+    _ value: T,
+    between range: PartialRangeThrough<T>,
+    orNotification message: @autoclosure () -> String? = nil,
+    file: StaticString = #file,
+    line: UInt = #line
+) -> AssertionNotification? {
+    if _slowPath(!range.contains(value)) {
+        return .create(
+            message: message() ?? kBetweenDefaultMessage.description,
+            file: file,
+            line: line
+        )
+    }
+
+    return nil
+}
+
+/// Determines if the `value` is between some minimum and maximum.
+@inlinable
+public func assert<T: Comparable>(
+    _ value: T,
+    between range: PartialRangeFrom<T>,
+    orNotification message: @autoclosure () -> String? = nil,
+    file: StaticString = #file,
+    line: UInt = #line
+) -> AssertionNotification? {
+    if _slowPath(!range.contains(value)) {
+        return .create(
+            message: message() ?? kBetweenDefaultMessage.description,
+            file: file,
+            line: line
+        )
+    }
+
+    return nil
+}

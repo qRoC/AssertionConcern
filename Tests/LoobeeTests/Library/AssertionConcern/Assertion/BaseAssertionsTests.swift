@@ -9,7 +9,7 @@ import XCTest
 #if canImport(Loobee)
 import Loobee
 #else
-import AssertionConcern
+import LoobeeAssertionConcern
 #endif
 
 /// Contains base methods for check assertions result.
