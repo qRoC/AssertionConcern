@@ -1,0 +1,109 @@
+// This file is part of the Loobee package.
+//
+// (c) Andrey Savitsky <contact@qroc.pro>
+//
+// For the full copyright and license information, please view the LICENSE
+// file that was distributed with this source code.
+
+%{
+#
+timeUnits = [
+    # name,       nanoseconds, detailed
+    ('nanoseconds',            1, None                           ),
+    ('microseconds',        1000, {'nanoseconds': 1000}          ),
+    ('milliseconds',     1000000, {'nanoseconds': 1000000}       ),
+    ('seconds',       1000000000, {'nanoseconds': 1000000000}    ),
+    ('minutes',      60000000000, {'seconds': 60}                ),
+    ('hours',      3600000000000, {'seconds': 3600}              ),
+    ('days',      86400000000000, {'seconds': 86400}             ),
+    ('weeks',    604800000000000, {'days': 7}                    ),
+    ('months',  2629746000000000, {'days': 30, 'seconds': 37746} ),
+    ('years',  31556952000000000, {'days': 365, 'seconds': 20952}),
+]
+
+#
+timeUnitsInfo = {
+    'nanoseconds': 'Is a minimal unit.',
+    'months': 'This value exactly 1/12 of a `Duration.years` (is equal to 30.436875 days).',
+    'years': 'This value is the average length of a Gregorian year (is equal to 365.2425 days).',
+}
+
+#
+def getUnit(name):
+    for timeUnit in timeUnits:
+        if timeUnit[0] == name:
+            return timeUnit
+    raise RuntimeError
+
+#
+def detailedTOSwiftFormat(detailed):
+    from collections import OrderedDict
+    ordered = OrderedDict(sorted(detailed.items(), key=lambda t: getUnit(t[0])[1], reverse=True))
+    return ' + '.join('.{}({})'.format(key, value) for key, value in ordered.items())
+}%
+/// A duration represents of a span of time, defined as some time unit.
+public enum Duration {
+% for name, nanoseconds, detailed in timeUnits:
+    /// Represents ${name}. ${timeUnitsInfo.get(name)}
+    % if detailed is not None:
+    ///
+    ///     .${name}(1) == ${detailedTOSwiftFormat(detailed)}
+    ///
+    % end
+    case ${name}(Int64)
+
+% end
+    /// Returns value of current time unit.
+    public var count: Int64 {
+        switch self {
+        case ${',\n             '.join('.{}(let count)'.format(timeUnit[0]) for timeUnit in timeUnits)}:
+            return count
+        }
+    }
+}
+
+public extension Duration {
+    % for index, (name, nanoseconds, detailed) in enumerate(timeUnits):
+    /// Casts current time unit to ${name}.
+    % if index != 0:
+    %{ prevTimeUnit = timeUnits[index - 1] }%
+    ///
+    /// Conversion with precision loss. For example:
+    ///
+    ///     .${prevTimeUnit[0]}(${nanoseconds / prevTimeUnit[1] * 2 - 1}).${name} // .${name}(1)
+    ///
+    % end
+    /// Can return `nil` if new value is overflow.
+    var ${name}: Duration? {
+        switch self {
+        % for caseIndex, (caseName, caseNanoseconds, caseDetailed) in enumerate(timeUnits):
+        % if index > caseIndex:
+        case .${caseName}(let count):
+            %{ ratio = float(nanoseconds) / caseNanoseconds }%
+            % if ratio == int(ratio):
+            return .${name}(count / ${int(ratio)})
+            % else:
+            return .${name}(Int64(Double(count) / ${ratio}))
+            % end
+        % elif index < caseIndex:
+        case .${caseName}:
+            %{ ratio = float(caseNanoseconds) / nanoseconds }%
+            % if ratio == int(ratio):
+            let (${name}, overflow) = self.count.multipliedReportingOverflow(by: ${int(ratio)})
+            return _slowPath(overflow) ? nil : .${name}(${name})
+            % else:
+                let count = Double(self.count) * ${ratio}
+                return _slowPath(count > Double(Int64.max)) ? nil : .${name}(Int64(count))
+            % end
+        % else:
+        case .${caseName}:
+            return self
+        % end
+        % end
+        }
+    }
+    % if index != len(timeUnits) - 1:
+
+    % end
+    % end
+}

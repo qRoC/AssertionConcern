@@ -32,11 +32,15 @@ is_root()
 }
 
 packages_install() {
-    if is_root; then
-        apt-get -qq update
-        apt-get install -y "$@"
+    if is_macOS; then
+        brew install "$@"
     else
-        sudo apt-get -qq update
-        sudo apt-get install -y "$@"
+        if is_root; then
+            apt-get -qq update
+            apt-get install -y "$@"
+        else
+            sudo apt-get -qq update
+            sudo apt-get install -y "$@"
+        fi
     fi
 }
