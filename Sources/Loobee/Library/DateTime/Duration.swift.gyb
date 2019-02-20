@@ -8,7 +8,7 @@
 %{
 #
 timeUnits = [
-    # name,       nanoseconds, detailed
+    # name,       nanoseconds,    detailed
     ('nanoseconds',            1, None                           ),
     ('microseconds',        1000, {'nanoseconds': 1000}          ),
     ('milliseconds',     1000000, {'nanoseconds': 1000000}       ),
@@ -36,30 +36,63 @@ def getUnit(name):
     raise RuntimeError
 
 #
-def detailedTOSwiftFormat(detailed):
+def detailedToSwiftFormat(detailed):
     from collections import OrderedDict
     ordered = OrderedDict(sorted(detailed.items(), key=lambda t: getUnit(t[0])[1], reverse=True))
     return ' + '.join('.{}({})'.format(key, value) for key, value in ordered.items())
+
+#
+def generateOperationCases(targetNanoseconds):
+    cases = {'multipliedInt': [], 'multipliedFloat': [], 'dividedInt': [], 'dividedFloat': [], 'copy': []}
+
+    for name, nanoseconds, detailed in timeUnits:
+        if targetNanoseconds > nanoseconds:
+            ratio = float(targetNanoseconds) / nanoseconds
+            if ratio == int(ratio):
+                cases['dividedInt'].append((nanoseconds, int(ratio)))
+            else:
+                cases['dividedFloat'].append((nanoseconds, ratio))
+        elif targetNanoseconds < nanoseconds:
+            ratio = float(nanoseconds) / targetNanoseconds
+            if ratio == int(ratio):
+                cases['multipliedInt'].append((nanoseconds, int(ratio)))
+            else:
+                cases['multipliedFloat'].append((nanoseconds, ratio))
+        elif targetNanoseconds == nanoseconds:
+            cases['copy'].append((nanoseconds, 1))
+
+    return {k:v for k,v in cases.items() if len(v)}
 }%
 /// A duration represents of a span of time, defined as some time unit.
-public enum Duration {
-% for name, nanoseconds, detailed in timeUnits:
+public struct Duration {
+    /// Returns value of current time unit.
+    public let count: Int64
+
+    /// The ratio of the current unit to nanoseconds.
+    @usableFromInline internal let ratio: Int64
+
+    ///
+    @usableFromInline
+    @inline(__always)
+    internal init(count: Int64, ratio: Int64) {
+        self.count = count
+        self.ratio = ratio
+    }
+
+    % for index, (name, nanoseconds, detailed) in enumerate(timeUnits):
     /// Represents ${name}. ${timeUnitsInfo.get(name)}
     % if detailed is not None:
     ///
-    ///     .${name}(1) == ${detailedTOSwiftFormat(detailed)}
+    ///     .${name}(1) == ${detailedToSwiftFormat(detailed)}
     ///
     % end
-    case ${name}(Int64)
-
-% end
-    /// Returns value of current time unit.
-    public var count: Int64 {
-        switch self {
-        case ${',\n             '.join('.{}(let count)'.format(timeUnit[0]) for timeUnit in timeUnits)}:
-            return count
-        }
+    public static func ${name}(_ count: Int64) -> Duration {
+        return .init(count: count, ratio: ${nanoseconds})
     }
+    % if index != len(timeUnits) - 1:
+
+    % end
+    % end
 }
 
 public extension Duration {
@@ -75,32 +108,34 @@ public extension Duration {
     % end
     /// Can return `nil` if new value is overflow.
     var ${name}: Duration? {
-        switch self {
-        % for caseIndex, (caseName, caseNanoseconds, caseDetailed) in enumerate(timeUnits):
-        % if index > caseIndex:
-        case .${caseName}(let count):
-            %{ ratio = float(nanoseconds) / caseNanoseconds }%
-            % if ratio == int(ratio):
-            return .${name}(count / ${int(ratio)})
-            % else:
-            return .${name}(Int64(Double(count) / ${ratio}))
-            % end
-        % elif index < caseIndex:
-        case .${caseName}:
-            %{ ratio = float(caseNanoseconds) / nanoseconds }%
-            % if ratio == int(ratio):
-            let (${name}, overflow) = self.count.multipliedReportingOverflow(by: ${int(ratio)})
-            return _slowPath(overflow) ? nil : .${name}(${name})
-            % else:
+        %{ cases = generateOperationCases(nanoseconds) }%
+        % if len(cases):
+        switch self.ratio {
+        % for key, ratios in cases.items():
+        % for (case, ratio) in ratios:
+        case ${case}:
+            % if key == 'dividedInt':
+                return .${name}(self.count / ${ratio})
+            % elif key == 'dividedFloat':
+                return .${name}(Int64(Double(self.count) / ${ratio}))
+            % elif key == 'multipliedInt':
+                let (${name}, overflow) = self.count.multipliedReportingOverflow(by: ${ratio})
+                return _slowPath(overflow) ? nil : .${name}(${name})
+            % elif key == 'multipliedFloat':
                 let count = Double(self.count) * ${ratio}
                 return _slowPath(count > Double(Int64.max)) ? nil : .${name}(Int64(count))
+            % elif key == 'copy':
+                return self
             % end
-        % else:
-        case .${caseName}:
-            return self
         % end
         % end
+        default:
+            let unreachable = { unsafeBitCast((), to: Never.self) }
+            unreachable()
         }
+        % else:
+        return nil
+        % end
     }
     % if index != len(timeUnits) - 1:
 
